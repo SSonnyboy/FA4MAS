@@ -1,0 +1,13 @@
+{
+  "method": "baseline_step_by_step",
+  "model": "gpt-4o-mini",
+  "data_dir": "../data/Algorithm-Generated",
+  "results_dir": "../results",
+  "badcase_dir": "../results/badcases",
+  "temperature": 0.0,
+  "debug_mode": false,
+  "method_params": {
+    "use_ground_truth_in_prompt": true
+  }
+}
+

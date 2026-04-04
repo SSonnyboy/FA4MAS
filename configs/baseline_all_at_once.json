@@ -1,0 +1,11 @@
+{
+  "method": "baseline_all_at_once",
+  "model": "gpt-4o-mini",
+  "data_dir": "../data/Algorithm-Generated",
+  "results_dir": "../results",
+  "badcase_dir": "../results/badcases",
+  "temperature": 0.0,
+  "debug_mode": false,
+  "method_params": {}
+}
+
