@@ -1,0 +1,15 @@
+{
+  "api_key": "",
+  "base_url": "https://api.deepseek.com",
+  "method": "all_at_once",
+  "model": "deepseek-reasoner",
+  "data_dir": "../data/Algorithm-Generated",
+  "results_dir": "../results",
+  "badcase_dir": "../results/badcases",
+  "temperature": 0.0,
+  "debug_mode": true,
+  "method_params": {
+    "use_ground_truth_in_prompt": false
+  }
+}
+

@@ -15,6 +15,8 @@ class ExperimentConfig:
     data_dir: Path
     results_dir: Path
     badcase_dir: Path
+    api_key: str | None = None
+    base_url: str | None = None
     debug_mode: bool = False
     debug_limit: int | None = None
     max_samples: int | None = None
@@ -50,6 +52,8 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
         data_dir=_resolve_path(base_dir, raw["data_dir"], "data/Algorithm-Generated"),
         results_dir=_resolve_path(base_dir, raw.get("results_dir"), "../results"),
         badcase_dir=_resolve_path(base_dir, raw.get("badcase_dir"), "../results/badcases"),
+        api_key=raw.get("api_key"),
+        base_url=raw.get("base_url"),
         debug_mode=bool(raw.get("debug_mode", False)),
         debug_limit=raw.get("debug_limit"),
         max_samples=raw.get("max_samples"),

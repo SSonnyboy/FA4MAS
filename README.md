@@ -26,9 +26,9 @@ FA4MAS
 cd /home/chenyu/workplace/FA4MAS
 python run_experiment.py --config configs/chief.json
 python run_experiment.py --config configs/baseline.json
-python run_experiment.py --config configs/baseline_all_at_once.json
-python run_experiment.py --config configs/baseline_binary_search.json
-python run_experiment.py --config configs/baseline_step_by_step.json
+python run_experiment.py --config configs/all_at_once.json
+python run_experiment.py --config configs/binary_search.json
+python run_experiment.py --config configs/step_by_step.json
 ```
 
 ## 方法名
@@ -45,3 +45,4 @@ python run_experiment.py --config configs/baseline_step_by_step.json
 
 - 如果本地存在旧版 `CHIEF/rag` 索引且依赖齐全，会自动启用
 - 如果缺少 `faiss`、`sentence_transformers` 或索引文件，则自动退化为无检索模式
+

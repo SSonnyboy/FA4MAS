@@ -6,6 +6,7 @@ from typing import Any, Dict, List
 
 
 def _extract(pattern: str, text: str) -> str | None:
+    # 所有解析函数都建立在这一层轻量正则抽取之上。
     match = re.search(pattern, text, re.S | re.M)
     return match.group(1).strip() if match else None
 
@@ -38,6 +39,7 @@ def _parse_inline_list(raw: str | None) -> List[str]:
 
 
 def parse_subtasks(raw: str) -> List[Dict[str, Any]]:
+    # 将 step1 的长文本转为后续可复用的子任务对象。
     names = re.findall(r"The Subtask Name:\s*([^\n]+)", raw)
     range_matches = re.findall(r"Step Range:\s*(?:step)?(\d+)\s*-\s*(?:step)?(\d+)", raw)
     oracles = re.findall(r"The Oracle:\s*([^\n]+)", raw)
@@ -68,6 +70,7 @@ def parse_subtasks(raw: str) -> List[Dict[str, Any]]:
 
 
 def parse_subtask_edges(raw: str) -> List[Dict[str, Any]]:
+    # 这里只保留核心边信息，避免中间图过于臃肿。
     blocks = [block.strip() for block in re.split(r"(?=^From:\s*S[0-9]+)", raw, flags=re.M) if block.strip()]
     edges = []
     for block in blocks:
@@ -84,6 +87,7 @@ def parse_subtask_edges(raw: str) -> List[Dict[str, Any]]:
 
 
 def parse_subtask_agents(raw: str, subtasks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    # 先按子任务名切块，再把 agent/data_flow 合并回原子任务列表。
     sections = [section.strip() for section in re.split(r"^The Subtask Name:\s*", raw, flags=re.M) if section.strip()]
     parsed_by_name: Dict[str, Dict[str, Any]] = {}
 
@@ -141,6 +145,7 @@ def parse_subtask_agents(raw: str, subtasks: List[Dict[str, Any]]) -> List[Dict[
 
 
 def parse_agent_edges(raw: str) -> List[Dict[str, Any]]:
+    # agent 边按子任务分组保留，便于后续构图与调试。
     sections = [section.strip() for section in re.split(r"^The Subtask Name:\s*", raw, flags=re.M) if section.strip()]
     all_edges = []
     for section in sections:
@@ -166,6 +171,7 @@ def parse_agent_edges(raw: str) -> List[Dict[str, Any]]:
 
 
 def parse_candidate_set(raw: str) -> Dict[str, Any]:
+    # Step5 的输出最复杂，因此这里显式拆成候选子任务、agent、step 三层。
     candidate_steps: List[Dict[str, Any]] = []
     steps_block = _extract(r"Candidate Error Steps:\s*([\s\S]+)$", raw) or ""
     for block in re.findall(r"-\s*step_id:\s*.+?(?=\n\s*-\s*step_id:|\Z)", steps_block, re.S):
@@ -214,9 +220,9 @@ def parse_candidate_set(raw: str) -> Dict[str, Any]:
 
 
 def parse_final_prediction(raw: str) -> Dict[str, Any]:
+    # 最终输出仍然对齐 baseline 的 Agent/Step/Reason 三字段格式。
     return {
         "mistake_agent": _extract(r"Agent Name:\s*([^\n*]+)", raw),
         "mistake_step": _extract_int(r"Step Number:\s*([0-9]+)", raw),
         "reason": _extract(r"Reason for Mistake:\s*(.*)", raw) or "",
     }
-

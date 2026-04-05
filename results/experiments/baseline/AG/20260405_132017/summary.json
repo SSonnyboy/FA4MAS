@@ -1,0 +1,23 @@
+{
+  "method": "baseline",
+  "model": "deepseek-reasoner",
+  "dataset": "AG",
+  "total_samples": 3,
+  "agent_accuracy": 1.0,
+  "step_accuracy": 0.0,
+  "prompt_tokens": 6417,
+  "completion_tokens": 4969,
+  "total_tokens": 11386,
+  "badcase_count": 3,
+  "badcase_samples": [
+    "1",
+    "2",
+    "3"
+  ],
+  "method_params": {
+    "use_ground_truth_in_prompt": false
+  },
+  "per_sample_path": "/mnt/data/share/cy_home/workplace/FA4MAS/results/experiments/baseline/AG/20260405_132017/samples.jsonl",
+  "badcase_folder": "/mnt/data/share/cy_home/workplace/FA4MAS/results/badcases/baseline/AG/20260405_132017",
+  "timestamp": "20260405_132017"
+}

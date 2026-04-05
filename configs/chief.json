@@ -1,11 +1,15 @@
 {
+  "api_key": "",
+  "base_url": "https://api.deepseek.com",
+  "model": "deepseek-reasoner",
   "method": "chief",
-  "model": "gpt-4o-mini",
   "data_dir": "../data/Algorithm-Generated",
-  "results_dir": "../results",
+  "results_dir": "../results_dir",
   "badcase_dir": "../results/badcases",
   "temperature": 0.0,
   "debug_mode": false,
-  "method_params": {}
+  "method_params": {
+    "use_ground_truth_in_prompt": false
+  }
 }
 

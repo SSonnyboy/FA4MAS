@@ -17,10 +17,12 @@ class StepByStepBaselineMethod(BaselineMethodBase):
 
     def __init__(self, client, config) -> None:
         super().__init__(client, config)
-        self.use_ground_truth = bool(self.params.get("use_ground_truth_in_prompt", True))
+        # 与 binary-search 一样，支持是否把标准答案放入提示词。
+        self.use_ground_truth = bool(self.config.method_params.get("use_ground_truth_in_prompt", True))
 
     @staticmethod
     def parse_verdict(text: str) -> str:
+        # 只接受 Yes/No 风格回答，其他情况视为 unknown。
         if YES_RE.search(text or ""):
             return "yes"
         if NO_RE.search(text or ""):
@@ -64,6 +66,7 @@ class StepByStepBaselineMethod(BaselineMethodBase):
         logs = []
         conversation_so_far = ""
         for index, entry in enumerate(history):
+            # 逐步扩展上下文，模拟“看到当前步为止”的在线审查。
             agent_name = entry.get(agent_field, "Unknown Agent")
             conversation_so_far += f"Step {index} - {agent_name}: {entry.get('content', '')}\n"
             raw = self.call_model(
@@ -80,12 +83,14 @@ class StepByStepBaselineMethod(BaselineMethodBase):
             verdict = self.parse_verdict(raw)
             logs.append({"step": index, "agent": agent_name, "verdict": verdict, "raw": raw})
             if verdict == "yes":
+                # 一旦模型认定当前步出错，就直接停止。
                 return agent_name, index, logs
 
         last_index = len(history) - 1
         return history[last_index].get(agent_field, "Unknown Agent"), last_index, logs
 
     def process_sample(self, file_path: Path, *, index: int) -> Dict[str, Any]:
+        # 返回完整逐步判断轨迹，便于回看模型在每一步的态度变化。
         sample = self.load_sample(file_path)
         question = str(sample.get("question", ""))
         history = sample.get("history", [])
@@ -111,4 +116,3 @@ class StepByStepBaselineMethod(BaselineMethodBase):
             },
             {"step_logs": logs},
         )
-

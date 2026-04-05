@@ -12,7 +12,8 @@ class BinarySearchBaselineMethod(BaselineMethodBase):
 
     def __init__(self, client, config) -> None:
         super().__init__(client, config)
-        self.use_ground_truth = bool(self.params.get("use_ground_truth_in_prompt", True))
+        # 保留旧实现能力：可以决定提示词里是否包含标准答案。
+        self.use_ground_truth = bool(self.config.method_params.get("use_ground_truth_in_prompt", True))
 
     def build_prompt(
         self,
@@ -61,6 +62,7 @@ class BinarySearchBaselineMethod(BaselineMethodBase):
         end = len(history) - 1
 
         while True:
+            # 不断让模型判断“错误更偏上半段还是下半段”，直到收敛到单步。
             if start > end:
                 chosen = max(0, min(end, len(history) - 1))
                 agent = history[chosen].get(agent_field, "Unknown Agent")
@@ -103,12 +105,14 @@ class BinarySearchBaselineMethod(BaselineMethodBase):
             elif decision == "lower":
                 start = min(mid + 1, end)
             else:
+                # 当模型输出不稳定时，保守回退到当前区间起点。
                 chosen = start
                 agent = history[chosen].get(agent_field, "Unknown Agent")
                 rounds.append({"range": [start, end], "mid": mid, "decision": "unknown_fallback", "raw": raw})
                 return agent, chosen, rounds
 
     def process_sample(self, file_path: Path, *, index: int) -> Dict[str, Any]:
+        # 结果里保留每一轮二分日志，方便分析模型为何收敛到该 step。
         sample = self.load_sample(file_path)
         question = str(sample.get("question", ""))
         history = sample.get("history", [])
@@ -134,4 +138,3 @@ class BinarySearchBaselineMethod(BaselineMethodBase):
             },
             {"rounds": rounds},
         )
-

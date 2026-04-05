@@ -14,6 +14,8 @@ class BaseMethod(ABC):
     def __init__(self, client: OpenAI, config: ExperimentConfig) -> None:
         self.client = client
         self.config = config
+        self.prompt_tokens: int = 0
+        self.completion_tokens: int = 0
 
     @property
     def model(self) -> str:

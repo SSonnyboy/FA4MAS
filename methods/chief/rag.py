@@ -14,6 +14,7 @@ class OptionalRAGRetriever:
         self.records_gaia: List[Dict[str, Any]] = []
         self.records_assistant: List[Dict[str, Any]] = []
 
+        # 默认复用旧版 CHIEF 里的检索资源，避免复制大索引文件。
         base = base_dir or (Path(__file__).resolve().parents[3] / "CHIEF" / "rag")
         self._gaia_path = base / "kb" / "gaia_kb.json"
         self._assistant_path = base / "kb" / "assistantbench_kb.json"
@@ -34,6 +35,7 @@ class OptionalRAGRetriever:
             return
 
         try:
+            # 检索器可用时一次性加载索引与知识库元数据。
             self._faiss = faiss
             self._model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
             self.index_gaia = faiss.read_index(str(gaia_index))
@@ -52,6 +54,7 @@ class OptionalRAGRetriever:
         if not self.available or self._faiss is None or self._model is None:
             return []
 
+        # 统一把两个知识源的结果混排后按分数排序。
         vector = self._model.encode([query], convert_to_numpy=True)
         self._faiss.normalize_L2(vector)
         dist_gaia, idx_gaia = self.index_gaia.search(vector, top_k)
@@ -78,6 +81,7 @@ class OptionalRAGRetriever:
 
 
 def build_rag_text(results: List[Dict[str, Any]]) -> str:
+    # 检索结果最终仍要被拼回提示词中的纯文本示例。
     if not results:
         return "No retrieved examples available."
     blocks = []
@@ -89,4 +93,3 @@ def build_rag_text(results: List[Dict[str, Any]]) -> str:
         else:
             blocks.append(f"[RAG Example {index}]\nText:\n{item.get('text')}")
     return "\n\n--- Retrieved Example ---\n\n".join(blocks)
-

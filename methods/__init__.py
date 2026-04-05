@@ -16,10 +16,9 @@ from .chief.method import CHIEFMethod
 
 METHOD_REGISTRY: Dict[str, Type[BaseMethod]] = {
     "baseline": FullTrajectoryBaselineMethod,
-    "baseline_full": FullTrajectoryBaselineMethod,
-    "baseline_all_at_once": AllAtOnceBaselineMethod,
-    "baseline_binary_search": BinarySearchBaselineMethod,
-    "baseline_step_by_step": StepByStepBaselineMethod,
+    "all_at_once": AllAtOnceBaselineMethod,
+    "binary_search": BinarySearchBaselineMethod,
+    "step_by_step": StepByStepBaselineMethod,
     "chief": CHIEFMethod,
 }
 

@@ -9,15 +9,15 @@ from core.runner import ExperimentRunner
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="运行 FA4MAS 方法实验。")
-    parser.add_argument("--config", type=Path, required=True, help="JSON 配置文件路径。")
+    parser = argparse.ArgumentParser(description="Run FA4MAS method experiments.")
+    parser.add_argument("--config", type=Path, required=True, help="JSON config file for the experiment.")
     args = parser.parse_args()
 
     config = load_experiment_config(args.config)
     runner = ExperimentRunner(config)
     summary = runner.run()
 
-    print("实验完成")
+    print("experiment completed!")
     print(f"Method: {summary['method']} @ {summary['model']}")
     print(f"Dataset: {summary['dataset']} ({summary['total_samples']} samples)")
     print(f"Agent Accuracy: {summary['agent_accuracy'] * 100:.2f}%")

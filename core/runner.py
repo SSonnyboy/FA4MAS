@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Dict, List
 
+from tqdm import tqdm
+
 from .config import ExperimentConfig
 from .llm import build_openai_client
 from .results import ExperimentResultWriter
@@ -13,7 +15,7 @@ from methods import create_method
 class ExperimentRunner:
     def __init__(self, config: ExperimentConfig) -> None:
         self.config = config
-        self.client = build_openai_client()
+        self.client = build_openai_client(config)
         self.method = create_method(self.client, config)
         self.writer = ExperimentResultWriter(config)
 
@@ -25,7 +27,7 @@ class ExperimentRunner:
         if self.config.max_samples is not None:
             files = files[: max(0, int(self.config.max_samples))]
         if self.config.debug_mode:
-            debug_limit = self.config.debug_limit or 1
+            debug_limit = self.config.debug_limit or 3
             files = files[: max(0, int(debug_limit))]
         return files
 
@@ -43,7 +45,7 @@ class ExperimentRunner:
         step_correct = 0
         badcase_files: List[str] = []
 
-        for index, path in enumerate(sample_paths):
+        for index, path in enumerate(tqdm(sample_paths, desc="Processing samples")):
             record = self.method.process_sample(path, index=index)
             self.writer.write_sample(record)
 
@@ -68,6 +70,9 @@ class ExperimentRunner:
             "total_samples": total,
             "agent_accuracy": agent_correct / total,
             "step_accuracy": step_correct / total,
+            "prompt_tokens": self.method.prompt_tokens,
+            "completion_tokens": self.method.completion_tokens,
+            "total_tokens": self.method.prompt_tokens + self.method.completion_tokens,
             "badcase_count": len(badcase_files),
             "badcase_samples": badcase_files,
             "method_params": self.config.method_params,
