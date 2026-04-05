@@ -1,5 +1,5 @@
 {
-  "api_key": "",
+  "api_key": "sk-dd7ac9b5d2e84b6a82fac39f0993ad5a",
   "base_url": "https://api.deepseek.com",
   "method": "binary_search",
   "model": "deepseek-reasoner",
@@ -9,7 +9,7 @@
   "temperature": 0.0,
   "debug_mode": true,
   "method_params": {
-    "use_ground_truth_in_prompt": false
+    "use_ground_truth_in_prompt": false,
+    "step_tolerances": [0, 1, 2, 3, 4, 5]
   }
 }
-

@@ -1,1 +1,1 @@
-python run_experiment.py --config configs/binary_search.json
+python run_experiment.py --config configs/echo.json

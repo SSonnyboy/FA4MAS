@@ -25,6 +25,7 @@ FA4MAS
 ```bash
 cd /home/chenyu/workplace/FA4MAS
 python run_experiment.py --config configs/chief.json
+python run_experiment.py --config configs/echo.json
 python run_experiment.py --config configs/baseline.json
 python run_experiment.py --config configs/all_at_once.json
 python run_experiment.py --config configs/binary_search.json
@@ -34,10 +35,11 @@ python run_experiment.py --config configs/step_by_step.json
 ## 方法名
 
 - `baseline`
-- `baseline_all_at_once`
-- `baseline_binary_search`
-- `baseline_step_by_step`
+- `all_at_once`
+- `binary_search`
+- `step_by_step`
 - `chief`
+- `echo`
 
 ## 说明
 
@@ -46,3 +48,7 @@ python run_experiment.py --config configs/step_by_step.json
 - 如果本地存在旧版 `CHIEF/rag` 索引且依赖齐全，会自动启用
 - 如果缺少 `faiss`、`sentence_transformers` 或索引文件，则自动退化为无检索模式
 
+框架默认会在 summary 中统计 `Step-Level with Tolerance`：
+
+- `step_accuracy_with_tolerance` 默认包含 `±1` 到 `±5`
+- 可通过配置 `method_params.step_tolerance_max` 或 `method_params.step_tolerances` 自定义

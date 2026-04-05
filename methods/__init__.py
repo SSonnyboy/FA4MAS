@@ -12,6 +12,7 @@ from .baselines.baseline import FullTrajectoryBaselineMethod
 from .baselines.binary_search import BinarySearchBaselineMethod
 from .baselines.step_by_step import StepByStepBaselineMethod
 from .chief.method import CHIEFMethod
+from .echo.method import ECHOMethod
 
 
 METHOD_REGISTRY: Dict[str, Type[BaseMethod]] = {
@@ -20,6 +21,7 @@ METHOD_REGISTRY: Dict[str, Type[BaseMethod]] = {
     "binary_search": BinarySearchBaselineMethod,
     "step_by_step": StepByStepBaselineMethod,
     "chief": CHIEFMethod,
+    "echo": ECHOMethod,
 }
 
 
@@ -30,4 +32,3 @@ def create_method(client: OpenAI, config: ExperimentConfig) -> BaseMethod:
         raise ValueError(f"Unsupported method: {config.method}. Available methods: {supported}")
     method_cls = METHOD_REGISTRY[method_key]
     return method_cls(client=client, config=config)
-

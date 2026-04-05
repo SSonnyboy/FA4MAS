@@ -22,6 +22,10 @@ def main() -> None:
     print(f"Dataset: {summary['dataset']} ({summary['total_samples']} samples)")
     print(f"Agent Accuracy: {summary['agent_accuracy'] * 100:.2f}%")
     print(f"Step Accuracy: {summary['step_accuracy'] * 100:.2f}%")
+    tolerance_stats = summary.get("step_accuracy_with_tolerance", {})
+    if isinstance(tolerance_stats, dict) and tolerance_stats:
+        for key, value in tolerance_stats.items():
+            print(f"Step Accuracy {key}: {float(value) * 100:.2f}%")
     print(f"Samples: {summary['per_sample_path']}")
     print(f"Summary: {summary['summary_path']}")
     print(f"Badcases: {summary['badcase_dir']}")
@@ -29,4 +33,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

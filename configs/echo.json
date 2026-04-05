@@ -1,15 +1,19 @@
 {
   "api_key": "sk-dd7ac9b5d2e84b6a82fac39f0993ad5a",
   "base_url": "https://api.deepseek.com",
-  "method": "step_by_step",
+  "method": "echo",
   "model": "deepseek-reasoner",
   "data_dir": "../data/Algorithm-Generated",
   "results_dir": "../results",
   "badcase_dir": "../results/badcases",
-  "temperature": 0.0,
+  "temperature": 0.2,
   "debug_mode": true,
   "method_params": {
-    "use_ground_truth_in_prompt": false,
+    "num_analysts": 6,
+    "min_confidence_threshold": 0.3,
+    "context_type": "decision_quality",
+    "use_ground_truth_in_prompt": true,
+    "max_summary_chars": 12000,
     "step_tolerances": [0, 1, 2, 3, 4, 5]
   }
 }
