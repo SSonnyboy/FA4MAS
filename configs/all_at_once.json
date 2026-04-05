@@ -1,5 +1,5 @@
 {
-  "api_key": "sk-dd7ac9b5d2e84b6a82fac39f0993ad5a",
+  "api_key": "",
   "base_url": "https://api.deepseek.com",
   "method": "all_at_once",
   "model": "deepseek-reasoner",
