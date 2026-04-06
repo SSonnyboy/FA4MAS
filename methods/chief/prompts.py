@@ -6,11 +6,19 @@ from typing import Any, Dict, List
 from core.utils import join_lines
 
 
+def _ground_truth_block(ground_truth: str) -> str:
+    value = str(ground_truth or "").strip()
+    if not value:
+        return ""
+    return f"The correct answer for the problem is: {value}\n\n"
+
+
 def build_subtask_prompt(history: List[Dict[str, Any]], question: str, ground_truth: str, rag_text: str) -> str:
+    answer_block = _ground_truth_block(ground_truth)
     return (
         "You are an AI assistant tasked with analyzing a multi-agent conversation history when solving a real-world problem.\n"
         f"The problem is: {question}\n"
-        f"The correct answer for the problem is: {ground_truth}\n\n"
+        f"{answer_block}"
         "Here is the conversation in JSON format:\n"
         + str(history)
         + f"\n\nThere are total {len(history)} steps, each entry provides the agent output and its role.\n\n"
@@ -38,10 +46,11 @@ def build_subtask_prompt(history: List[Dict[str, Any]], question: str, ground_tr
 
 
 def build_subtask_edge_prompt(history: List[Dict[str, Any]], question: str, ground_truth: str, subtasks: List[Dict[str, Any]]) -> str:
+    answer_block = _ground_truth_block(ground_truth)
     return (
         "You are an expert in causal reasoning and multi-agent task analysis.\n"
         f"The problem is: {question}\n"
-        f"The correct answer for the problem is: {ground_truth}\n\n"
+        f"{answer_block}"
         "Here is the conversation in JSON format:\n"
         + str(history)
         + f"\n\nThere are total {len(history)} steps.\n\n"
@@ -54,6 +63,7 @@ def build_subtask_edge_prompt(history: List[Dict[str, Any]], question: str, grou
 
 
 def build_agent_prompt(history: List[Dict[str, Any]], question: str, ground_truth: str, subtasks: List[Dict[str, Any]]) -> str:
+    answer_block = _ground_truth_block(ground_truth)
     subtask_lines = [
         f"- id: {subtask.get('id')}, name: {subtask.get('name')}, step_range: {subtask.get('step_range')}"
         for subtask in subtasks
@@ -61,7 +71,7 @@ def build_agent_prompt(history: List[Dict[str, Any]], question: str, ground_trut
     return (
         "You are an AI assistant tasked with analyzing multi-agent execution traces.\n"
         f"The problem is: {question}\n"
-        f"The correct answer for the problem is: {ground_truth}\n\n"
+        f"{answer_block}"
         "Here is the conversation in JSON format:\n"
         + str(history)
         + f"\n\nThere are total {len(history)} steps.\n\n"
@@ -73,6 +83,7 @@ def build_agent_prompt(history: List[Dict[str, Any]], question: str, ground_trut
 
 
 def build_agent_edge_prompt(history: List[Dict[str, Any]], question: str, ground_truth: str, subtasks_agents: List[Dict[str, Any]]) -> str:
+    answer_block = _ground_truth_block(ground_truth)
     subtask_lines = []
     for subtask in subtasks_agents:
         agent_names = [agent.get("agent") for agent in subtask.get("agents", []) if agent.get("agent")]
@@ -82,7 +93,7 @@ def build_agent_edge_prompt(history: List[Dict[str, Any]], question: str, ground
     return (
         "You are an expert in causal reasoning and multi-agent task analysis.\n"
         f"The problem is: {question}\n"
-        f"The correct answer for the problem is: {ground_truth}\n\n"
+        f"{answer_block}"
         "Here is the conversation in JSON format:\n"
         + str(history)
         + f"\n\nThere are total {len(history)} steps.\n\n"
@@ -93,10 +104,11 @@ def build_agent_edge_prompt(history: List[Dict[str, Any]], question: str, ground
 
 
 def build_candidate_prompt(history: List[Dict[str, Any]], question: str, ground_truth: str, dag_graph: Dict[str, Any]) -> str:
+    answer_block = _ground_truth_block(ground_truth)
     return (
         "You are an AI assistant tasked with analyzing a multi-agent conversation solving a real-world problem.\n"
         f"The problem is: {question}\n"
-        f"The correct answer for the problem is: {ground_truth}\n\n"
+        f"{answer_block}"
         "Here is the conversation:\n"
         + str(history)
         + f"\n\nThere are total {len(history)} steps.\n\n"
@@ -107,10 +119,11 @@ def build_candidate_prompt(history: List[Dict[str, Any]], question: str, ground_
 
 
 def build_final_prompt(history: List[Dict[str, Any]], question: str, ground_truth: str, candidate_set: Dict[str, Any], dag_graph: Dict[str, Any]) -> str:
+    answer_block = _ground_truth_block(ground_truth)
     return (
         "You are an AI assistant tasked with analyzing a multi-agent conversation solving a real-world problem.\n"
         f"The problem is: {question}\n"
-        f"The correct answer for the problem is: {ground_truth}\n\n"
+        f"{answer_block}"
         "Here is the multi-agent conversation:\n"
         + str(history)
         + f"\n\nThere are total {len(history)} steps.\n\n"
@@ -124,4 +137,3 @@ def build_final_prompt(history: List[Dict[str, Any]], question: str, ground_trut
         "Step Number: ...\n"
         "Reason for Mistake: ...\n"
     )
-

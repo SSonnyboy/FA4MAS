@@ -4,5 +4,6 @@
 *.pyc
 __pycache__/
 **/__pycache__/
+.codex
 # local config overrides that may contain secrets
 configs/*.local.json

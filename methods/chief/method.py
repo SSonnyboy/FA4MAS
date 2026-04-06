@@ -33,6 +33,7 @@ class CHIEFMethod(BaseMethod):
     def __init__(self, client, config) -> None:
         super().__init__(client, config)
         self.retriever = OptionalRAGRetriever()
+        self.use_ground_truth = bool(self.params.get("use_ground_truth_in_prompt", True))
 
     def call_model(self, prompt: str) -> str:
         # CHIEF 各阶段都共用同一套调用配置。
@@ -64,36 +65,37 @@ class CHIEFMethod(BaseMethod):
         sample = load_json(file_path)
         history = sample.get("history", [])
         question = str(sample.get("question", ""))
-        ground_truth = str(sample.get("ground_truth", ""))
+        ground_truth = str(sample.get("ground_truth") or sample.get("answer") or "")
+        prompt_ground_truth = ground_truth if self.use_ground_truth else ""
         gt_agent = normalize_agent(sample.get("mistake_agent"))
         gt_step = normalize_step(sample.get("mistake_step"))
 
         # Step1: 结合可选 RAG，将原始轨迹切成子任务。
         rag_results = self.retriever.search(question, top_k=2)
         rag_text = build_rag_text(rag_results)
-        step1_raw = self.call_model(build_subtask_prompt(history, question, ground_truth, rag_text))
+        step1_raw = self.call_model(build_subtask_prompt(history, question, prompt_ground_truth, rag_text))
         subtasks = parse_subtasks(step1_raw)
 
         # Step2: 构造子任务之间的依赖边。
-        step2_raw = self.call_model(build_subtask_edge_prompt(history, question, ground_truth, subtasks))
+        step2_raw = self.call_model(build_subtask_edge_prompt(history, question, prompt_ground_truth, subtasks))
         subtasks_edges = parse_subtask_edges(step2_raw)
 
         # Step3: 在每个子任务内部抽出 agent 和细粒度数据流。
-        step3_raw = self.call_model(build_agent_prompt(history, question, ground_truth, subtasks))
+        step3_raw = self.call_model(build_agent_prompt(history, question, prompt_ground_truth, subtasks))
         subtasks_agents = parse_subtask_agents(step3_raw, subtasks)
 
         # Step4: 构造子任务内部的 agent 因果边。
-        step4_raw = self.call_model(build_agent_edge_prompt(history, question, ground_truth, subtasks_agents))
+        step4_raw = self.call_model(build_agent_edge_prompt(history, question, prompt_ground_truth, subtasks_agents))
         agent_edges = parse_agent_edges(step4_raw)
 
         dag_graph = self.build_dag_graph(subtasks_agents, subtasks_edges, agent_edges)
 
         # Step5: 先缩小到候选责任集合，再做最终判断。
-        step5_raw = self.call_model(build_candidate_prompt(history, question, ground_truth, dag_graph))
+        step5_raw = self.call_model(build_candidate_prompt(history, question, prompt_ground_truth, dag_graph))
         candidate_set = parse_candidate_set(step5_raw)
 
         # Step6: 在候选集合上输出唯一责任 agent 和 step。
-        step6_raw = self.call_model(build_final_prompt(history, question, ground_truth, candidate_set, dag_graph))
+        step6_raw = self.call_model(build_final_prompt(history, question, prompt_ground_truth, candidate_set, dag_graph))
         final_prediction = parse_final_prediction(step6_raw)
 
         pred_agent = normalize_agent(final_prediction.get("mistake_agent"))
