@@ -24,6 +24,9 @@ FA4MAS
 
 ```bash
 cd /home/chenyu/workplace/FA4MAS
+cp .env.example .env
+# 编辑 .env，填入 OPENAI_API_KEY（不要写到 configs/*.json）
+set -a && source .env && set +a
 python run_experiment.py --config configs/chief.json
 python run_experiment.py --config configs/echo.json
 python run_experiment.py --config configs/baseline.json
@@ -31,6 +34,12 @@ python run_experiment.py --config configs/all_at_once.json
 python run_experiment.py --config configs/binary_search.json
 python run_experiment.py --config configs/step_by_step.json
 ```
+
+## 密钥安全
+
+- API Key 请仅通过环境变量传入（`OPENAI_API_KEY`）
+- 不要在 `configs/*.json` 中填写真实密钥
+- `.env` 已被 `.gitignore` 忽略，可安全用于本地开发
 
 ## 方法名
 

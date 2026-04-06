@@ -1,0 +1,6 @@
+.env
+.env.*
+!.env.example
+
+# local config overrides that may contain secrets
+configs/*.local.json

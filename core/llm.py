@@ -17,11 +17,11 @@ DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant skilled in analyzing multi-
 
 
 def build_openai_client(config) -> OpenAI:
-    api_key = config.api_key or os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("OPENAI_API_KEY") or config.api_key
     if not api_key or not api_key.strip():
         raise RuntimeError("Missing OPENAI_API_KEY. Please set it before running.")
 
-    base_url = config.base_url or os.getenv("OPENAI_BASE_URL")
+    base_url = os.getenv("OPENAI_BASE_URL") or config.base_url
     if base_url and base_url.strip():
         return OpenAI(api_key=api_key.strip(), base_url=base_url.strip())
     return OpenAI(api_key=api_key.strip())
@@ -63,4 +63,3 @@ def chat_completion(
         prompt_tokens=usage.prompt_tokens if usage else 0,
         completion_tokens=usage.completion_tokens if usage else 0,
     )
-
