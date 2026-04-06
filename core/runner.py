@@ -1,6 +1,7 @@
 """实验调度器。"""
 from __future__ import annotations
 
+import random
 from typing import Dict, List
 
 from tqdm import tqdm
@@ -27,8 +28,14 @@ class ExperimentRunner:
         if self.config.max_samples is not None:
             files = files[: max(0, int(self.config.max_samples))]
         if self.config.debug_mode:
-            debug_limit = self.config.debug_limit or 3
-            files = files[: max(0, int(debug_limit))]
+            debug_limit = self.config.debug_limit or 10
+            limit = max(0, int(debug_limit))
+            rng = random.Random()
+            if limit >= len(files):
+                files = list(files)
+                rng.shuffle(files)
+            else:
+                files = rng.sample(files, limit)
         return files
 
     @staticmethod

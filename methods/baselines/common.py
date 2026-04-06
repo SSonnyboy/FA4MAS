@@ -36,7 +36,10 @@ class BaselineMethodBase(BaseMethod):
         if not history:
             return "name"
         first_entry = history[0]
-        if "role" in first_entry:
+        # 优先使用 name（通常是专家名），避免把 assistant/user 当成责任 agent。
+        if "name" in first_entry and str(first_entry.get("name", "")).strip():
+            return "name"
+        if "role" in first_entry and str(first_entry.get("role", "")).strip():
             return "role"
         if "name" in first_entry:
             return "name"

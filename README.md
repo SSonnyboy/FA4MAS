@@ -26,7 +26,7 @@ FA4MAS
 cd /home/chenyu/workplace/FA4MAS
 cp .env.example .env
 # 编辑 .env，填入 OPENAI_API_KEY（不要写到 configs/*.json）
-set -a && source .env && set +a
+set -a && . ./.env && set +a
 python run_experiment.py --config configs/chief.json
 python run_experiment.py --config configs/echo.json
 python run_experiment.py --config configs/baseline.json
@@ -61,3 +61,12 @@ python run_experiment.py --config configs/step_by_step.json
 
 - `step_accuracy_with_tolerance` 默认包含 `±1` 到 `±5`
 - 可通过配置 `method_params.step_tolerance_max` 或 `method_params.step_tolerances` 自定义
+
+Debug 模式默认会随机抽样 `debug_limit` 条样本（无需额外配置）：
+
+```json
+{
+  "debug_mode": true,
+  "debug_limit": 10
+}
+```

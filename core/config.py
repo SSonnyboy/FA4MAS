@@ -60,4 +60,3 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
         temperature=float(raw.get("temperature", 0.0)),
         method_params=dict(raw.get("method_params") or {}),
     )
-

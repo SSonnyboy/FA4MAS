@@ -1,6 +1,7 @@
 .env
 .env.*
 !.env.example
-
+*.pyc
+__pycache__/
 # local config overrides that may contain secrets
 configs/*.local.json

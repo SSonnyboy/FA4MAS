@@ -36,13 +36,16 @@ class CHIEFMethod(BaseMethod):
 
     def call_model(self, prompt: str) -> str:
         # CHIEF 各阶段都共用同一套调用配置。
-        return chat_completion(
+        result = chat_completion(
             self.client,
             model=self.model,
             prompt=prompt,
             temperature=self.temperature,
             system_prompt="You are a helpful assistant skilled in analyzing multi-agent conversations.",
         )
+        self.prompt_tokens += result.prompt_tokens
+        self.completion_tokens += result.completion_tokens
+        return result.content
 
     @staticmethod
     def build_dag_graph(
