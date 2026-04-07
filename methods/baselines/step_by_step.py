@@ -46,6 +46,7 @@ class StepByStepBaselineMethod(BaselineMethodBase):
             f"{answer_block}"
             f"Here is the conversation history up to the current step:\n{conversation_so_far}\n"
             f"The most recent step ({step_index}) was by '{agent_name}'.\n"
+            "Step indexing rule: all step numbers are 0-based (the first step is 0).\n"
             "Determine whether this most recent step contains an error that could derail the process.\n"
             "Respond ONLY in the format:\n"
             "1. Yes/No.\n"

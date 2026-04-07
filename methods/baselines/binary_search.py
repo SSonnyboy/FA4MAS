@@ -32,6 +32,7 @@ class BinarySearchBaselineMethod(BaselineMethodBase):
             f"The problem to address is as follows: {question}\n"
             f"{answer_block}"
             f"Review the following conversation segment {range_description}:\n\n{segment_text}\n\n"
+            "Step indexing rule: all step numbers are 0-based (the first step is 0).\n"
             f"Predict whether the most critical error is more likely to be located in the upper half ({upper_half_desc}) "
             f"or the lower half ({lower_half_desc}) of this segment.\n"
             "Please provide your prediction by responding with ONLY 'upper half' or 'lower half'."

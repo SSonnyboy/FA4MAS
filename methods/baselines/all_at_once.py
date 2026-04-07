@@ -25,12 +25,13 @@ class AllAtOnceBaselineMethod(BaselineMethodBase):
             "Here is the conversation in JSON format:\n"
             + str(history)
             + f"\n\nThere are total {len(history)} steps, each entry provides the input of the agent and its role.\n"
+            "Step indexing rule: all step ranges are 0-based (the first step is 0).\n"
             "Based on this conversation, please:\n"
             "1. Decompose the reasoning into semantic subtasks.\n"
             "2. Predict the correct output (oracle) for each subtask.\n\n"
             "Please answer in the format below, strictly following the plain text structure:\n\n"
             "The Subtask Name: (your prediction)\n"
-            "Step Range: (start-end)\n"
+            "Step Range: (start-end, 0-based, e.g., 0-2)\n"
             "The Oracle: (your prediction)\n\n"
             "No overlaps between step ranges are allowed.\n"
             "Now generate your output below:\n"
@@ -68,6 +69,7 @@ class AllAtOnceBaselineMethod(BaselineMethodBase):
             "Here is the conversation (in JSON format):\n"
             + str(history)
             + f"\n\nThere are total {len(history)} steps, each entry provides an agent's input.\n"
+            "Step indexing rule: all step numbers are 0-based (the first step is 0).\n"
             "Below are the subtasks, their step ranges, and the expected oracle outputs:\n"
             + str(subtasks)
             + "\n\nYour job:\n"
@@ -76,7 +78,7 @@ class AllAtOnceBaselineMethod(BaselineMethodBase):
             "3. Explain why that step is the reasoning slip.\n\n"
             "Please answer in this exact plain text format:\n"
             "Agent Name: (your prediction)\n"
-            "Step Number: (your prediction)\n"
+            "Step Number: (your prediction, 0-based)\n"
             "Reason for Mistake: (your explanation)\n"
             "No special symbols, no extra commentary.\n"
         )

@@ -37,6 +37,7 @@ def build_screening_prompt(
         f"Observed Final Answer from the trajectory: {final_answer}\n\n"
         "Event Capsules (ordered by step):\n"
         f"{event_capsules}\n\n"
+        "Step indexing rule: all step fields are 0-based (the first step is 0).\n"
         f"Deterministic forward hints: {deterministic_forward}\n"
         f"Deterministic backward hints: {deterministic_backward}\n\n"
         f"Select up to {top_k} steps for each direction.\n"
@@ -48,7 +49,7 @@ def build_screening_prompt(
         '  "global_confidence": 0.0\n'
         "}\n"
         "</json>\n"
-        "Rules: step must be integer, score/confidence in [0,1], no extra text."
+        "Rules: step must be integer, score/confidence in [0,1], step is 0-based, no extra text."
     )
 
 
@@ -76,6 +77,7 @@ def build_tournament_prompt(
         f"Problem: {question}\n"
         f"{gt_block}"
         f"Observed Final Answer: {final_answer}\n\n"
+        "Step indexing rule: candidate step numbers are 0-based (the first step is 0).\n"
         f"Candidate A (step {candidate_a_step}) local context:\n{candidate_a_context}\n\n"
         f"Candidate B (step {candidate_b_step}) local context:\n{candidate_b_context}\n\n"
         "Output:\n"
@@ -111,10 +113,11 @@ def build_finalize_prompt(
         f"{gt_block}"
         f"Observed Final Answer: {final_answer}\n"
         f"Focused Candidate Step: {focused_step}\n\n"
+        "Step indexing rule: output Step Number must be 0-based (the first step is 0).\n\n"
         f"Local Context:\n{local_context}\n\n"
         "Return exactly:\n"
         "Agent Name: ...\n"
-        "Step Number: ...\n"
+        "Step Number: ... (0-based)\n"
         "Reason for Mistake: ...\n"
         "Confidence: ...\n"
         "No markdown."
@@ -143,6 +146,7 @@ def build_escalation_prompt(
         f"{gt_block}"
         f"Observed Final Answer: {final_answer}\n"
         f"Seed Mistake Step: {seed_step}\n\n"
+        "Step indexing rule: output step must be 0-based (the first step is 0).\n\n"
         f"Local Context:\n{local_context}\n\n"
         "<json>\n"
         "{\n"

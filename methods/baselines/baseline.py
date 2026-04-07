@@ -24,13 +24,14 @@ class FullTrajectoryBaselineMethod(BaselineMethodBase):
             "Here is the full conversation log (in JSON format):\n"
             + str(history)
             + f"\n\nThere are total {len(history)} steps, each representing one agent's message.\n"
+            "Step indexing rule: all step numbers are 0-based (the first step is 0).\n"
             "Your goal:\n"
             "1. Identify which agent made the reasoning mistake directly responsible for the incorrect outcome.\n"
             "2. Determine the exact step number where this mistake first occurred.\n"
             "3. Explain why this step represents a reasoning error.\n\n"
             "Please strictly follow this plain text format:\n"
             "Agent Name: (your prediction)\n"
-            "Step Number: (your prediction)\n"
+            "Step Number: (your prediction, 0-based)\n"
             "Reason for Mistake: (your explanation)\n"
             "No extra commentary or markdown symbols.\n"
         )
