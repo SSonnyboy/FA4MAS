@@ -1,0 +1,25 @@
+{
+  "result_file": "outputs\\chief\\chief2_deepseek-ai_DeepSeek-V3.2.jsonl",
+  "n_evaluated": 126,
+  "metrics_tol0": {
+    "total": 126,
+    "agent_accuracy": 0.6190476190476191,
+    "step_accuracy": 0.42063492063492064,
+    "agent_correct": 78,
+    "step_correct": 53
+  },
+  "metrics_tol1": {
+    "total": 126,
+    "agent_accuracy": 0.6190476190476191,
+    "step_accuracy": 0.5317460317460317,
+    "agent_correct": 78,
+    "step_correct": 67
+  },
+  "metrics_tol2": {
+    "total": 126,
+    "agent_accuracy": 0.6190476190476191,
+    "step_accuracy": 0.6507936507936508,
+    "agent_correct": 78,
+    "step_correct": 82
+  }
+}

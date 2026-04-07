@@ -1,0 +1,2 @@
+{"method": "famas", "model": "deepseek-ai/DeepSeek-V3.2", "lam": 0.9, "chunk_size": 10, "n_samples": 126, "metrics_tol0":
+{"total": 126, "agent_accuracy": 0.30158730158730157, "step_accuracy": 0.1984126984126984, "agent_correct": 38, "step_correct": 25}, "metrics_tol1": {"total": 126, "agent_accuracy": 0.30158730158730157, "step_accuracy": 0.49206349206349204, "agent_correct": 38, "step_correct": 62}}

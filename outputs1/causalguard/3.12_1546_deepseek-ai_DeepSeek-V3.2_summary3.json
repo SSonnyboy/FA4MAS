@@ -1,0 +1,20 @@
+{
+  "method": "CausalGuard",
+  "model": "deepseek-ai/DeepSeek-V3.2",
+  "use_ground_truth": false,
+  "n_samples": 20,
+  "metrics_tol0": {
+    "total": 20,
+    "agent_accuracy": 0.45,
+    "step_accuracy": 0.3,
+    "agent_correct": 9,
+    "step_correct": 6
+  },
+  "metrics_tol1": {
+    "total": 20,
+    "agent_accuracy": 0.45,
+    "step_accuracy": 0.45,
+    "agent_correct": 9,
+    "step_correct": 9
+  }
+}

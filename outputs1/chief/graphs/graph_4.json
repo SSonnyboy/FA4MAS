@@ -1,0 +1,522 @@
+{
+  "subtask_nodes": [
+    {
+      "id": "S1",
+      "name": "Task Understanding and Plan Initiation",
+      "step_range": [
+        1,
+        1
+      ],
+      "agents_id": [
+        "HawaiiRealEstate_Expert"
+      ],
+      "oracle": {
+        "Goal": "Understand the user's request and initiate the plan to find which of two homes sold for more in 2022 in Pearl City, Hawaii.",
+        "Precondition": "The user has provided a general task and manager's plan.",
+        "Key_Evidence": "The general task specifies two addresses (2072 Akaikai Loop and 2017 Komo Mai Drive) and asks for the higher sale price in 2022 without commas or decimal places. The manager's plan outlines steps: gather sales data, verify, and confirm.",
+        "Acceptance_Criteria": "The agent acknowledges the task and plan, and initiates coordination among experts as per the plan."
+      }
+    },
+    {
+      "id": "S2",
+      "name": "Data Collection Request for Home Sales",
+      "step_range": [
+        2,
+        2
+      ],
+      "agents_id": [
+        "Data_Analysis_Expert"
+      ],
+      "oracle": {
+        "Goal": "Request sales data for the two specified homes from the HawaiiRealEstate_Expert.",
+        "Precondition": "The task and plan are understood, and the Data_Analysis_Expert is coordinating.",
+        "Key_Evidence": "Data_Analysis_Expert explicitly asks HawaiiRealEstate_Expert to provide sales data for 2072 Akaikai Loop and 2017 Komo Mai Drive in Pearl City, Hawaii for 2022.",
+        "Acceptance_Criteria": "The request is clear, includes both addresses, and specifies the year 2022."
+      }
+    },
+    {
+      "id": "S3",
+      "name": "Provision of Home Sales Data",
+      "step_range": [
+        3,
+        3
+      ],
+      "agents_id": [
+        "HawaiiRealEstate_Expert"
+      ],
+      "oracle": {
+        "Goal": "Provide the sale prices for both homes as gathered from real estate data.",
+        "Precondition": "HawaiiRealEstate_Expert has been asked for the data.",
+        "Key_Evidence": "HawaiiRealEstate_Expert states sale prices: $850,000 for 2072 Akaikai Loop and $950,000 for 2017 Komo Mai Drive.",
+        "Acceptance_Criteria": "The data includes both addresses with sale prices in dollars, and is presented as factual information."
+      }
+    },
+    {
+      "id": "S4",
+      "name": "Initial Verification and Comparison of Sale Prices",
+      "step_range": [
+        4,
+        4
+      ],
+      "agents_id": [
+        "Validation_Expert"
+      ],
+      "oracle": {
+        "Goal": "Extract and verify the sales data, then compare to identify the higher price.",
+        "Precondition": "Sales data has been provided by HawaiiRealEstate_Expert.",
+        "Key_Evidence": "Validation_Expert lists prices without commas or decimal places (850000 and 950000) and compares them, noting 950000 is higher.",
+        "Acceptance_Criteria": "The verification includes formatting check and comparison, correctly identifying 950000 as the higher price."
+      }
+    },
+    {
+      "id": "S5",
+      "name": "Final Validation and Result Confirmation",
+      "step_range": [
+        5,
+        5
+      ],
+      "agents_id": [
+        "Validation_Expert"
+      ],
+      "oracle": {
+        "Goal": "Confirm the higher-selling home and its price, ensuring accuracy and format compliance.",
+        "Precondition": "Initial verification is complete, and prices have been compared.",
+        "Key_Evidence": "Validation_Expert confirms 2017 Komo Mai Drive sold for 950000, which is greater than 850000, and notes formatting is correct.",
+        "Acceptance_Criteria": "The result explicitly states the address and price without commas or decimal places, and validation is affirmed."
+      }
+    },
+    {
+      "id": "S6",
+      "name": "System Check for Code Execution",
+      "step_range": [
+        6,
+        6
+      ],
+      "agents_id": [
+        "Computer_terminal"
+      ],
+      "oracle": {
+        "Goal": "Check for executable code in the conversation and prompt continuation or termination.",
+        "Precondition": "The conversation has reached a point where no code is present.",
+        "Key_Evidence": "Computer_terminal indicates no code to execute and instructs to continue or terminate with 'TERMINATE'.",
+        "Acceptance_Criteria": "The message correctly notes absence of code and provides termination protocol."
+      }
+    },
+    {
+      "id": "S7",
+      "name": "Task Completion and Termination by Data Analyst",
+      "step_range": [
+        7,
+        7
+      ],
+      "agents_id": [
+        "Data_Analysis_Expert"
+      ],
+      "oracle": {
+        "Goal": "Finalize the task by stating the result and terminating.",
+        "Precondition": "Validation is complete, and system check has been performed.",
+        "Key_Evidence": "Data_Analysis_Expert states the home that sold for more is 2017 Komo Mai Drive with price 950000, then says 'TERMINATE'.",
+        "Acceptance_Criteria": "The result is restated correctly, and termination is initiated."
+      }
+    },
+    {
+      "id": "S8",
+      "name": "Termination Confirmation",
+      "step_range": [
+        8,
+        8
+      ],
+      "agents_id": [
+        "Validation_Expert"
+      ],
+      "oracle": {
+        "Goal": "Confirm termination of the conversation.",
+        "Precondition": "Data_Analysis_Expert has terminated.",
+        "Key_Evidence": "Validation_Expert replies with 'TERMINATE'.",
+        "Acceptance_Criteria": "The agent outputs only 'TERMINATE', confirming end of conversation."
+      }
+    }
+  ],
+  "agent_nodes": [
+    {
+      "id": "A1",
+      "name": "HawaiiRealEstate_Expert",
+      "subtask_id": "S1",
+      "step_ids": [
+        1
+      ],
+      "otar": {
+        "Observation": "Received the general task and manager's plan.",
+        "Thought": "Need to follow the manager's plan to solve the task: gather sales data, verify, and confirm.",
+        "Action": "Presented the task, plan, output format, and constraints to the group.",
+        "Result": "Initiated the multi‑agent workflow with a clear plan."
+      }
+    },
+    {
+      "id": "A2",
+      "name": "Data_Analysis_Expert",
+      "subtask_id": "S2",
+      "step_ids": [
+        2
+      ],
+      "otar": {
+        "Observation": "The plan is defined; the first step is to collect sales data.",
+        "Thought": "Should coordinate by asking the real estate expert to provide the required data.",
+        "Action": "Requested HawaiiRealEstate_Expert to gather sales data for the two addresses in 2022.",
+        "Result": "Data collection request sent to the appropriate agent."
+      }
+    },
+    {
+      "id": "A3",
+      "name": "HawaiiRealEstate_Expert",
+      "subtask_id": "S3",
+      "step_ids": [
+        3
+      ],
+      "otar": {
+        "Observation": "Asked to provide sales data for 2072 Akaikai Loop and 2017 Komo Mai Drive in 2022.",
+        "Thought": "I have the data; I will supply the sale prices.",
+        "Action": "Provided sale prices: $850,000 for 2072 Akaikai Loop and $950,000 for 2017 Komo Mai Drive.",
+        "Result": "Sales data delivered to the group."
+      }
+    },
+    {
+      "id": "A4",
+      "name": "Validation_Expert",
+      "subtask_id": "S4",
+      "step_ids": [
+        4
+      ],
+      "otar": {
+        "Observation": "Sales data for both homes is available.",
+        "Thought": "Need to verify accuracy, format prices without commas/decimals, and compare.",
+        "Action": "Extracted prices as 850000 and 950000, noted that 950000 is higher, and asked for final validation.",
+        "Result": "Initial verification completed; higher price identified."
+      }
+    },
+    {
+      "id": "A5",
+      "name": "Validation_Expert",
+      "subtask_id": "S5",
+      "step_ids": [
+        5
+      ],
+      "otar": {
+        "Observation": "Prices are formatted correctly and comparison shows 950000 > 850000.",
+        "Thought": "All checks are satisfied; can confirm the result.",
+        "Action": "Declared that 2017 Komo Mai Drive sold for more at 950000.",
+        "Result": "Final validation and result confirmation provided."
+      }
+    },
+    {
+      "id": "A6",
+      "name": "Computer_terminal",
+      "subtask_id": "S6",
+      "step_ids": [
+        6
+      ],
+      "otar": {
+        "Observation": "No code in the last message; conversation may need to continue or terminate.",
+        "Thought": "Should prompt the group chat manager to let others continue or terminate.",
+        "Action": "Noted absence of code and suggested manager decide continuation/termination.",
+        "Result": "System check completed; guidance given."
+      }
+    },
+    {
+      "id": "A7",
+      "name": "Data_Analysis_Expert",
+      "subtask_id": "S7",
+      "step_ids": [
+        7
+      ],
+      "otar": {
+        "Observation": "Validation is complete; the result is ready.",
+        "Thought": "Task is finished; should terminate the conversation.",
+        "Action": "Restated the result (2017 Komo Mai Drive, 950000) and sent TERMINATE.",
+        "Result": "Task completion declared and termination initiated."
+      }
+    },
+    {
+      "id": "A8",
+      "name": "Validation_Expert",
+      "subtask_id": "S8",
+      "step_ids": [
+        8
+      ],
+      "otar": {
+        "Observation": "Data_Analysis_Expert terminated the conversation.",
+        "Thought": "Should confirm termination.",
+        "Action": "Replied with TERMINATE.",
+        "Result": "Termination confirmed; conversation ended."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "S1",
+      "to": "S2",
+      "type": "logical_prereq",
+      "level": "subtask",
+      "counterfactual_patterns": [
+        {
+          "Bias": "If the plan in S1 was flawed, S2 would be misdirected.",
+          "Anomaly": "S1 correctly interprets the task, enabling S2's data request."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "A1",
+      "to": "A2",
+      "type": "reasoning_continuation",
+      "level": "agent",
+      "counterfactual_patterns": [
+        {
+          "Bias": "A1's plan sets the stage; A2's request depends on that understanding.",
+          "Anomaly": "No error; A2 builds on A1's task breakdown."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "S2",
+      "to": "S3",
+      "type": "data_dependency",
+      "level": "subtask",
+      "counterfactual_patterns": [
+        {
+          "Bias": "S3's data provision directly fulfills S2's request.",
+          "Anomaly": "If S2's request was incorrect, S3 might provide wrong data."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "A2",
+      "to": "A3",
+      "type": "obs_dependency",
+      "level": "agent",
+      "counterfactual_patterns": [
+        {
+          "Bias": "A2's request is observed by A3, triggering data retrieval.",
+          "Anomaly": "A3 correctly responds with sales data as observed."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "S3",
+      "to": "S4",
+      "type": "data_dependency",
+      "level": "subtask",
+      "counterfactual_patterns": [
+        {
+          "Bias": "S4's verification depends on data from S3.",
+          "Anomaly": "If S3's data were inaccurate, S4's validation would be corrupted."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "A3",
+      "to": "A4",
+      "type": "obs_dependency",
+      "level": "agent",
+      "counterfactual_patterns": [
+        {
+          "Bias": "A4 observes A3's provided data to begin verification.",
+          "Anomaly": "A4 uses A3's data without error."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "S4",
+      "to": "S5",
+      "type": "reasoning_continuation",
+      "level": "subtask",
+      "counterfactual_patterns": [
+        {
+          "Bias": "S5 finalizes validation based on S4's initial check.",
+          "Anomaly": "S5 confirms S4's reasoning, showing continuity."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "A4",
+      "to": "A5",
+      "type": "reasoning_continuation",
+      "level": "agent",
+      "counterfactual_patterns": [
+        {
+          "Bias": "A5 continues A4's validation process to conclude.",
+          "Anomaly": "A5's confirmation relies on A4's correct prior steps."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "S5",
+      "to": "S6",
+      "type": "environment_feedback",
+      "level": "subtask",
+      "counterfactual_patterns": [
+        {
+          "Bias": "S6's system check responds to termination in S5.",
+          "Anomaly": "S6 notes no code, prompting continuation."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "A5",
+      "to": "A6",
+      "type": "obs_dependency",
+      "level": "agent",
+      "counterfactual_patterns": [
+        {
+          "Bias": "A6 observes termination from A5, but system rules require more.",
+          "Anomaly": "A6's feedback corrects termination timing."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "S6",
+      "to": "S7",
+      "type": "decision_dependency",
+      "level": "subtask",
+      "counterfactual_patterns": [
+        {
+          "Bias": "S7's termination decision follows S6's feedback.",
+          "Anomaly": "S7 adheres to S6's instruction to let others continue."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "A6",
+      "to": "A7",
+      "type": "obs_dependency",
+      "level": "agent",
+      "counterfactual_patterns": [
+        {
+          "Bias": "A7 observes A6's message and decides to terminate.",
+          "Anomaly": "A7 correctly terminates after A6's prompt."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "S7",
+      "to": "S8",
+      "type": "decision_dependency",
+      "level": "subtask",
+      "counterfactual_patterns": [
+        {
+          "Bias": "S8's termination confirmation depends on S7's termination.",
+          "Anomaly": "S8 follows S7's lead to end conversation."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "A7",
+      "to": "A8",
+      "type": "obs_dependency",
+      "level": "agent",
+      "counterfactual_patterns": [
+        {
+          "Bias": "A8 observes A7's termination and echoes it.",
+          "Anomaly": "A8's response is consistent with A7's action."
+        }
+      ],
+      "data_info": {}
+    },
+    {
+      "from": "step_1",
+      "to": "step_2",
+      "type": "data_flow",
+      "level": "step",
+      "counterfactual_patterns": [],
+      "data_info": {
+        "output_data": "Task description and plan for solving the task",
+        "input_data": "Task and plan to coordinate experts",
+        "data_type": "text",
+        "upstream_step": 1,
+        "downstream_step": 2
+      }
+    },
+    {
+      "from": "step_2",
+      "to": "step_3",
+      "type": "data_flow",
+      "level": "step",
+      "counterfactual_patterns": [],
+      "data_info": {
+        "output_data": "Request for sales data for two addresses",
+        "input_data": "Request to gather sales data",
+        "data_type": "text",
+        "upstream_step": 2,
+        "downstream_step": 3
+      }
+    },
+    {
+      "from": "step_3",
+      "to": "step_4",
+      "type": "data_flow",
+      "level": "step",
+      "counterfactual_patterns": [],
+      "data_info": {
+        "output_data": "Sales data: 2072 Akaikai Loop $850,000, 2017 Komo Mai Drive $950,000",
+        "input_data": "Sales data for verification",
+        "data_type": "text",
+        "upstream_step": 3,
+        "downstream_step": 4
+      }
+    },
+    {
+      "from": "step_4",
+      "to": "step_5",
+      "type": "data_flow",
+      "level": "step",
+      "counterfactual_patterns": [],
+      "data_info": {
+        "output_data": "Extracted sale prices without commas: 850000 and 950000, comparison result",
+        "input_data": "Prices and comparison for validation",
+        "data_type": "numeric",
+        "upstream_step": 4,
+        "downstream_step": 5
+      }
+    },
+    {
+      "from": "step_5",
+      "to": "step_7",
+      "type": "data_flow",
+      "level": "step",
+      "counterfactual_patterns": [],
+      "data_info": {
+        "output_data": "Validation result: 2017 Komo Mai Drive sold for more at 950000",
+        "input_data": "Validated result for task completion",
+        "data_type": "text",
+        "upstream_step": 5,
+        "downstream_step": 7
+      }
+    },
+    {
+      "from": "step_7",
+      "to": "step_8",
+      "type": "data_flow",
+      "level": "step",
+      "counterfactual_patterns": [],
+      "data_info": {
+        "output_data": "Final answer: 2017 Komo Mai Drive with sale price 950000",
+        "input_data": "Termination signal",
+        "data_type": "text",
+        "upstream_step": 7,
+        "downstream_step": 8
+      }
+    }
+  ]
+}

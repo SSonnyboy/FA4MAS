@@ -1,0 +1,20 @@
+{
+  "method": "tot",
+  "model": "deepseek-ai/DeepSeek-V3.2",
+  "use_ground_truth": false,
+  "n_samples": 58,
+  "metrics_tol0": {
+    "total": 58,
+    "agent_accuracy": 0.3103448275862069,
+    "step_accuracy": 0.10344827586206896,
+    "agent_correct": 18,
+    "step_correct": 6
+  },
+  "metrics_tol1": {
+    "total": 58,
+    "agent_accuracy": 0.3103448275862069,
+    "step_accuracy": 0.1724137931034483,
+    "agent_correct": 18,
+    "step_correct": 10
+  }
+}
