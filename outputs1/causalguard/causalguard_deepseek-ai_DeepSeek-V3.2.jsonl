@@ -1,5 +1,0 @@
-{"responsible_agent": "DataVerification_Expert", "error_step": 5, "reason": "CausalGuard: DataVerification_Expert@step5 anomaly=0.90 conf=0.90 [early_stop]", "task_id": "1"}
-{"responsible_agent": "Verification_Expert", "error_step": 3, "reason": "CausalGuard: Verification_Expert@step3 anomaly=0.54 conf=0.90 [early_stop]", "task_id": "2"}
-{"responsible_agent": "Python_Expert", "error_step": 1, "reason": "CausalGuard: Python_Expert@step1 anomaly=0.00 conf=0.00", "task_id": "3"}
-{"responsible_agent": "Validation_Expert", "error_step": 4, "reason": "CausalGuard: Validation_Expert@step4 anomaly=0.54 conf=0.90 [early_stop]", "task_id": "4"}
-{"responsible_agent": "Gaming_Awards_Expert", "error_step": 2, "reason": "CausalGuard: Gaming_Awards_Expert@step2 anomaly=0.54 conf=0.90 [early_stop]", "task_id": "5"}
