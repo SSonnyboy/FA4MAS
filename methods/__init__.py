@@ -11,6 +11,7 @@ from .baselines.all_at_once import AllAtOnceBaselineMethod
 from .baselines.baseline import FullTrajectoryBaselineMethod
 from .baselines.binary_search import BinarySearchBaselineMethod
 from .baselines.step_by_step import StepByStepBaselineMethod
+from .blade.method import BLADEMethod
 from .chief.method import CHIEFMethod
 from .echo.method import ECHOMethod
 
@@ -20,6 +21,7 @@ METHOD_REGISTRY: Dict[str, Type[BaseMethod]] = {
     "all_at_once": AllAtOnceBaselineMethod,
     "binary_search": BinarySearchBaselineMethod,
     "step_by_step": StepByStepBaselineMethod,
+    "blade": BLADEMethod,
     "chief": CHIEFMethod,
     "echo": ECHOMethod,
 }

@@ -164,3 +164,170 @@ def aggregate_consensus(
         "num_analysts": len(objective_analyses),
     }
 
+
+def aggregate_decoupled_consensus(
+    agent_analyses: List[Dict[str, Any]],
+    step_analyses: List[Dict[str, Any]],
+    *,
+    min_confidence_threshold: float,
+    conversation_history: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    if not agent_analyses or not step_analyses:
+        return {
+            "consensus_conclusion": {
+                "type": "single_agent",
+                "attribution": [],
+                "mistake_step": None,
+                "confidence": 0.0,
+                "reasoning": "Insufficient decoupled analyses provided.",
+            },
+            "voting_details": {
+                "pair_votes": [],
+                "conclusion_votes": {},
+                "step_votes": {},
+                "best_weighted_score": 0.0,
+                "disagreement_analysis": {
+                    "high_disagreement": False,
+                    "num_different_conclusions": 0,
+                    "confidence_spread": 0.0,
+                    "requires_review": True,
+                },
+            },
+            "agent_evaluations_summary": {},
+            "alternative_hypotheses": [],
+            "num_analysts": min(len(agent_analyses), len(step_analyses)),
+            "mode": "decoupled",
+        }
+
+    def _analyst_id(row: Dict[str, Any], default: int) -> int:
+        raw = row.get("analyst_id", default)
+        try:
+            return int(raw)
+        except Exception:
+            return int(default)
+
+    agent_by_id = {_analyst_id(row, idx): row for idx, row in enumerate(agent_analyses)}
+    step_by_id = {_analyst_id(row, idx): row for idx, row in enumerate(step_analyses)}
+    shared_ids = sorted(set(agent_by_id.keys()).intersection(step_by_id.keys()))
+
+    pair_votes: List[Dict[str, Any]] = []
+    conclusion_votes: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    step_votes: Dict[int, float] = defaultdict(float)
+    attribution_votes: Dict[str, float] = defaultdict(float)
+    all_alternative_hypotheses: List[Dict[str, Any]] = []
+    all_agent_evaluations: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+
+    for analyst_id in shared_ids:
+        agent_analysis = agent_by_id[analyst_id]
+        step_analysis = step_by_id[analyst_id]
+        agent_conclusion = dict(agent_analysis.get("primary_conclusion") or {})
+        step_conclusion = dict(step_analysis.get("primary_conclusion") or {})
+
+        agent_conf = float(agent_conclusion.get("confidence") or 0.0)
+        step_conf = float(step_conclusion.get("confidence") or 0.0)
+        pair_conf = min(agent_conf, step_conf)
+        if pair_conf < min_confidence_threshold:
+            continue
+
+        conclusion_type = str(agent_conclusion.get("type") or step_conclusion.get("type") or "single_agent")
+        attribution = agent_conclusion.get("attribution") or []
+        mistake_step = step_conclusion.get("mistake_step")
+        if not isinstance(mistake_step, int):
+            mistake_step = None
+
+        pair_payload = {
+            "analyst_id": analyst_id,
+            "confidence": pair_conf,
+            "conclusion_type": conclusion_type,
+            "attribution": attribution,
+            "mistake_step": mistake_step,
+            "agent_confidence": agent_conf,
+            "step_confidence": step_conf,
+            "agent_reasoning": str(agent_conclusion.get("reasoning") or ""),
+            "step_reasoning": str(step_conclusion.get("reasoning") or ""),
+        }
+        pair_votes.append(pair_payload)
+        conclusion_votes[conclusion_type].append(pair_payload)
+
+        for agent in attribution:
+            if str(agent).strip():
+                attribution_votes[str(agent)] += pair_conf
+
+        if isinstance(mistake_step, int):
+            step_votes[mistake_step] += pair_conf
+
+        for alt in (agent_analysis.get("alternative_hypotheses") or []):
+            payload = dict(alt)
+            payload["analyst_id"] = analyst_id
+            payload["source"] = "agent_phase"
+            all_alternative_hypotheses.append(payload)
+        for alt in (step_analysis.get("alternative_hypotheses") or []):
+            payload = dict(alt)
+            payload["analyst_id"] = analyst_id
+            payload["source"] = "step_phase"
+            all_alternative_hypotheses.append(payload)
+
+        for row in agent_analysis.get("agent_evaluations") or []:
+            name = row.get("agent_name")
+            if not name:
+                continue
+            all_agent_evaluations[str(name)].append(
+                {
+                    "error_likelihood": float(row.get("error_likelihood") or 0.0),
+                    "reasoning": str(row.get("reasoning") or ""),
+                    "evidence": str(row.get("evidence") or ""),
+                    "analyst_id": analyst_id,
+                }
+            )
+
+    best_type = None
+    best_info = None
+    best_weighted_score = 0.0
+    for conclusion_type, votes in conclusion_votes.items():
+        total_confidence = sum(float(vote["confidence"]) for vote in votes)
+        avg_confidence = total_confidence / len(votes) if votes else 0.0
+        if total_confidence > best_weighted_score:
+            best_weighted_score = total_confidence
+            best_type = conclusion_type
+            best_info = {"votes": votes, "avg_confidence": avg_confidence, "total_confidence": total_confidence}
+
+    sorted_agents = sorted(attribution_votes.items(), key=lambda item: item[1], reverse=True)
+    if best_type == "single_agent":
+        final_attribution = [sorted_agents[0][0]] if sorted_agents else []
+    else:
+        final_attribution = [agent for agent, score in sorted_agents if score >= min_confidence_threshold]
+
+    validated_steps = [(step, score) for step, score in step_votes.items() if 0 <= step < len(conversation_history)]
+    validated_steps.sort(key=lambda item: item[1], reverse=True)
+    final_step = validated_steps[0][0] if validated_steps else None
+
+    aggregated_agent = {}
+    for name, evaluations in all_agent_evaluations.items():
+        scores = [float(row["error_likelihood"]) for row in evaluations]
+        aggregated_agent[name] = {
+            "avg_error_likelihood": (sum(scores) / len(scores)) if scores else 0.0,
+            "num_evaluations": len(evaluations),
+            "evaluations": evaluations,
+        }
+
+    avg_conf = float(best_info["avg_confidence"]) if best_info else 0.0
+    return {
+        "consensus_conclusion": {
+            "type": best_type or "single_agent",
+            "attribution": final_attribution,
+            "mistake_step": final_step,
+            "confidence": avg_conf,
+            "reasoning": _synthesize_reasoning(best_info["votes"], avg_conf) if best_info else "No clear consensus reached.",
+        },
+        "voting_details": {
+            "pair_votes": pair_votes,
+            "conclusion_votes": dict(conclusion_votes),
+            "step_votes": dict(step_votes),
+            "best_weighted_score": best_weighted_score,
+            "disagreement_analysis": _analyze_disagreements(conclusion_votes),
+        },
+        "agent_evaluations_summary": aggregated_agent,
+        "alternative_hypotheses": all_alternative_hypotheses[:5],
+        "num_analysts": len(shared_ids),
+        "mode": "decoupled",
+    }

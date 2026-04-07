@@ -1,0 +1,27 @@
+Processing samples:   0%|          | 0/126 [00:00<?, ?it/s]Processing samples:   1%|          | 1/126 [01:36<3:21:49, 96.87s/it]Processing samples:   2%|▏         | 2/126 [03:56<4:12:39, 122.25s/it]Processing samples:   2%|▏         | 3/126 [05:34<3:47:21, 110.90s/it]Processing samples:   3%|▎         | 4/126 [09:16<5:14:40, 154.76s/it]Processing samples:   4%|▍         | 5/126 [11:50<5:12:03, 154.74s/it]Processing samples:   5%|▍         | 6/126 [13:17<4:23:12, 131.60s/it]Processing samples:   6%|▌         | 7/126 [16:00<4:41:06, 141.74s/it]Processing samples:   6%|▋         | 8/126 [18:14<4:33:51, 139.25s/it]Processing samples:   7%|▋         | 9/126 [24:30<6:56:02, 213.35s/it]Processing samples:   8%|▊         | 10/126 [27:17<6:24:46, 199.02s/it]Processing samples:   9%|▊         | 11/126 [29:43<5:50:07, 182.67s/it]Processing samples:  10%|▉         | 12/126 [33:51<6:25:10, 202.72s/it]Processing samples:  10%|█         | 13/126 [36:05<5:42:32, 181.88s/it]Processing samples:  11%|█         | 14/126 [39:04<5:37:51, 180.99s/it]Processing samples:  12%|█▏        | 15/126 [42:44<5:56:33, 192.73s/it]Processing samples:  13%|█▎        | 16/126 [44:34<5:07:41, 167.83s/it]Processing samples:  13%|█▎        | 17/126 [47:13<5:00:09, 165.22s/it]Processing samples:  14%|█▍        | 18/126 [50:18<5:08:17, 171.28s/it]Processing samples:  15%|█▌        | 19/126 [53:04<5:02:21, 169.54s/it]Processing samples:  16%|█▌        | 20/126 [55:42<4:53:14, 165.99s/it]Processing samples:  17%|█▋        | 21/126 [58:03<4:37:27, 158.54s/it]Processing samples:  17%|█▋        | 22/126 [1:00:07<4:17:08, 148.35s/it]Processing samples:  18%|█▊        | 23/126 [1:03:38<4:46:45, 167.04s/it]Processing samples:  19%|█▉        | 24/126 [1:06:15<4:38:53, 164.05s/it]Processing samples:  20%|█▉        | 25/126 [1:08:43<4:28:09, 159.30s/it]Processing samples:  21%|██        | 26/126 [1:11:00<4:14:04, 152.45s/it]Processing samples:  21%|██▏       | 27/126 [1:12:26<3:38:36, 132.49s/it]Processing samples:  22%|██▏       | 28/126 [1:16:14<4:23:10, 161.13s/it]Processing samples:  23%|██▎       | 29/126 [1:17:39<3:43:33, 138.29s/it]Processing samples:  24%|██▍       | 30/126 [1:22:00<4:40:12, 175.13s/it]Processing samples:  24%|██▍       | 30/126 [1:22:00<4:22:25, 164.01s/it]
+Traceback (most recent call last):
+  File "/mnt/data/share/cy_home/workplace/FA4MAS/run_experiment.py", line 35, in <module>
+    main()
+  File "/mnt/data/share/cy_home/workplace/FA4MAS/run_experiment.py", line 18, in main
+    summary = runner.run()
+  File "/mnt/data/share/cy_home/workplace/FA4MAS/core/runner.py", line 83, in run
+    record = self.method.process_sample(path, index=index)
+  File "/mnt/data/share/cy_home/workplace/FA4MAS/methods/baselines/all_at_once.py", line 94, in process_sample
+    subtasks, step1_raw = self.generate_subtasks(history, question, ground_truth)
+  File "/mnt/data/share/cy_home/workplace/FA4MAS/methods/baselines/all_at_once.py", line 38, in generate_subtasks
+    raw = self.call_model(prompt)
+  File "/mnt/data/share/cy_home/workplace/FA4MAS/methods/baselines/common.py", line 49, in call_model
+    result = chat_completion(
+  File "/mnt/data/share/cy_home/workplace/FA4MAS/core/llm.py", line 51, in chat_completion
+    response = client.chat.completions.create(**request)
+  File "/home/chenyu/.conda/envs/cybase/lib/python3.9/site-packages/openai/_utils/_utils.py", line 275, in wrapper
+    return func(*args, **kwargs)
+  File "/home/chenyu/.conda/envs/cybase/lib/python3.9/site-packages/openai/resources/chat/completions.py", line 829, in create
+    return self._post(
+  File "/home/chenyu/.conda/envs/cybase/lib/python3.9/site-packages/openai/_base_client.py", line 1280, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/home/chenyu/.conda/envs/cybase/lib/python3.9/site-packages/openai/_base_client.py", line 957, in request
+    return self._request(
+  File "/home/chenyu/.conda/envs/cybase/lib/python3.9/site-packages/openai/_base_client.py", line 1061, in _request
+    raise self._make_status_error_from_response(err.response) from None
+openai.BadRequestError: Error code: 400 - {'error': {'message': 'Content Exists Risk', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}

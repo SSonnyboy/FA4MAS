@@ -29,7 +29,7 @@ cp .env.example .env
 set -a && . ./.env && set +a
 python run_experiment.py --config configs/chief.json
 python run_experiment.py --config configs/echo.json
-python run_experiment.py --config configs/triplet_bidir.json
+python run_experiment.py --config configs/blade.json
 python run_experiment.py --config configs/baseline.json
 python run_experiment.py --config configs/all_at_once.json
 python run_experiment.py --config configs/binary_search.json
@@ -48,9 +48,9 @@ python run_experiment.py --config configs/step_by_step.json
 - `all_at_once`
 - `binary_search`
 - `step_by_step`
+- `blade`
 - `chief`
 - `echo`
-- `triplet_bidir`
 
 ## 说明
 

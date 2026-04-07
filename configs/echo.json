@@ -6,13 +6,19 @@
   "data_dir": "../data/Algorithm-Generated",
   "results_dir": "../results",
   "badcase_dir": "../results/badcases",
-  "temperature": 0.2,
-  "debug_mode": true,
+  "temperature": 0.3,
+  "debug_mode": false,
   "method_params": {
-    "num_analysts": 6,
+    "num_analysts": 3,
+    "random_sample_analysts": true,
+    "temperature_strategy": "random_uniform",
+    "temperature_min": 0.3,
+    "temperature_max": 0.9,
+    "analyst_seed": 2026,
+    "decoupled_attribution": true,
     "min_confidence_threshold": 0.3,
     "context_type": "decision_quality",
-    "use_ground_truth_in_prompt": true,
+    "use_ground_truth_in_prompt": false,
     "max_summary_chars": 12000,
     "step_tolerances": [0, 1, 2, 3, 4, 5]
   }

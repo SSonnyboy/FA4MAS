@@ -1,0 +1,30 @@
+{
+  "api_key": "",
+  "base_url": "https://api.deepseek.com",
+  "method": "blade",
+  "model": "deepseek-reasoner",
+  "data_dir": "../data/Algorithm-Generated",
+  "results_dir": "../results",
+  "badcase_dir": "../results/badcases",
+  "temperature": 0.0,
+  "debug_mode": true,
+  "method_params": {
+    "use_ground_truth_in_prompt": false,
+    "candidate_top_k": 8,
+    "max_tournament_candidates": 8,
+    "use_pointwise_reranker": true,
+    "rerank_top_k": 4,
+    "local_window": 2,
+    "max_events_for_screening": 42,
+    "enable_screening_model": true,
+    "screening_max_tokens": 700,
+    "tournament_max_tokens": 160,
+    "rerank_max_tokens": 180,
+    "use_finalize_model": true,
+    "finalize_max_tokens": 420,
+    "uncertainty_threshold": 0.6,
+    "enable_escalation": true,
+    "escalation_num_analysts": 2,
+    "step_tolerances": [0, 1, 2, 3, 4, 5]
+  }
+}

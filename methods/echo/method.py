@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import random
 from typing import Any, Dict, List
 
 from core.llm import chat_completion
@@ -11,7 +12,7 @@ from methods.base import BaseMethod
 from .context import build_conversation_summary, build_hierarchical_contexts
 from .parsers import extract_json_block, normalize_objective_analysis
 from .prompts import build_objective_prompt, build_objective_system_prompt
-from .voting import aggregate_consensus
+from .voting import aggregate_consensus, aggregate_decoupled_consensus
 
 
 class ECHOMethod(BaseMethod):
@@ -31,6 +32,13 @@ class ECHOMethod(BaseMethod):
         self.context_type = str(self.params.get("context_type", "decision_quality"))
         self.include_ground_truth = bool(self.params.get("use_ground_truth_in_prompt", True))
         self.max_summary_chars = int(self.params.get("max_summary_chars", 12000))
+        self.random_sample_analysts = bool(self.params.get("random_sample_analysts", False))
+        self.analyst_seed = self.params.get("analyst_seed")
+        self.temperature_strategy = str(self.params.get("temperature_strategy", "fixed"))
+        self.temperature_min = float(self.params.get("temperature_min", 0.3))
+        self.temperature_max = float(self.params.get("temperature_max", 0.9))
+        self.temperature_values = self.params.get("temperature_values")
+        self.decoupled_attribution = bool(self.params.get("decoupled_attribution", True))
 
     def _call_model(self, *, prompt: str, system_prompt: str, temperature: float) -> str:
         result = chat_completion(
@@ -67,6 +75,68 @@ class ECHOMethod(BaseMethod):
         best = max(summary.items(), key=lambda item: float((item[1] or {}).get("avg_error_likelihood", 0.0)))
         return normalize_agent(best[0])
 
+    def _build_rng(self, *, index: int) -> random.Random:
+        if self.analyst_seed is None:
+            return random.Random()
+        try:
+            base = int(self.analyst_seed)
+        except Exception:
+            base = abs(hash(str(self.analyst_seed))) % (2**31)
+        return random.Random(base + int(index))
+
+    def _select_analyst_roles(self, *, index: int) -> List[str]:
+        pool = list(self.ANALYST_ROLES)
+        target = max(1, self.num_analysts)
+        if not self.random_sample_analysts:
+            return [pool[i % len(pool)] for i in range(target)]
+
+        rng = self._build_rng(index=index)
+        if target >= len(pool):
+            sampled = list(pool)
+            rng.shuffle(sampled)
+            return sampled
+        return rng.sample(pool, target)
+
+    @staticmethod
+    def _linspace(min_value: float, max_value: float, count: int) -> List[float]:
+        if count <= 1:
+            return [min_value]
+        step = (max_value - min_value) / float(count - 1)
+        return [min_value + step * i for i in range(count)]
+
+    def _select_temperatures(self, *, index: int, analyst_count: int) -> List[float]:
+        count = max(1, analyst_count)
+        strategy = self.temperature_strategy.lower()
+
+        if strategy == "list":
+            values = self.temperature_values if isinstance(self.temperature_values, list) else []
+            parsed: List[float] = []
+            for row in values:
+                try:
+                    parsed.append(float(row))
+                except Exception:
+                    continue
+            if not parsed:
+                parsed = [self.temperature]
+            if len(parsed) >= count:
+                return [max(0.0, min(1.0, parsed[i])) for i in range(count)]
+            repeated = [parsed[i % len(parsed)] for i in range(count)]
+            return [max(0.0, min(1.0, value)) for value in repeated]
+
+        if strategy == "linspace":
+            seq = self._linspace(self.temperature_min, self.temperature_max, count)
+            return [max(0.0, min(1.0, value)) for value in seq]
+
+        if strategy == "random_uniform":
+            low = min(self.temperature_min, self.temperature_max)
+            high = max(self.temperature_min, self.temperature_max)
+            rng = self._build_rng(index=index)
+            seq = [rng.uniform(low, high) for _ in range(count)]
+            return [max(0.0, min(1.0, value)) for value in seq]
+
+        # fixed
+        return [max(0.0, min(1.0, float(self.temperature))) for _ in range(count)]
+
     def process_sample(self, file_path: Path, *, index: int) -> Dict[str, Any]:
         sample = load_json(file_path)
         history = sample.get("history") or []
@@ -80,27 +150,79 @@ class ECHOMethod(BaseMethod):
         summary = build_conversation_summary(contexts, history, max_chars=self.max_summary_chars)
 
         objective_analyses: List[Dict[str, Any]] = []
-        analyst_count = max(1, self.num_analysts)
+        objective_analyses_agent: List[Dict[str, Any]] = []
+        objective_analyses_step: List[Dict[str, Any]] = []
+        analyst_roles = self._select_analyst_roles(index=index)
+        analyst_temperatures = self._select_temperatures(index=index, analyst_count=len(analyst_roles))
+        analyst_count = len(analyst_roles)
         for analyst_index in range(analyst_count):
-            role = self.ANALYST_ROLES[analyst_index % len(self.ANALYST_ROLES)]
-            system_prompt = build_objective_system_prompt(role)
-            prompt = build_objective_prompt(
+            role = analyst_roles[analyst_index]
+            analyst_temperature = analyst_temperatures[analyst_index]
+            agent_system_prompt = build_objective_system_prompt(role, attribution_target="agent")
+            agent_prompt = build_objective_prompt(
                 query=question,
                 ground_truth=ground_truth,
                 final_answer=final_answer,
                 context_summary=summary,
                 include_ground_truth=self.include_ground_truth,
+                attribution_target="agent",
             )
-            raw = self._call_model(prompt=prompt, system_prompt=system_prompt, temperature=self.temperature)
-            parsed = extract_json_block(raw)
-            normalized = normalize_objective_analysis(parsed, role, analyst_index)
-            objective_analyses.append(normalized)
+            agent_raw = self._call_model(
+                prompt=agent_prompt,
+                system_prompt=agent_system_prompt,
+                temperature=analyst_temperature,
+            )
+            agent_parsed = extract_json_block(agent_raw)
+            agent_analysis = normalize_objective_analysis(agent_parsed, role, analyst_index)
+            agent_analysis["temperature"] = analyst_temperature
+            agent_analysis["attribution_target"] = "agent"
+            objective_analyses_agent.append(agent_analysis)
 
-        consensus = aggregate_consensus(
-            objective_analyses,
-            min_confidence_threshold=self.min_confidence_threshold,
-            conversation_history=history,
-        )
+            if self.decoupled_attribution:
+                step_system_prompt = build_objective_system_prompt(role, attribution_target="step")
+                step_prompt = build_objective_prompt(
+                    query=question,
+                    ground_truth=ground_truth,
+                    final_answer=final_answer,
+                    context_summary=summary,
+                    include_ground_truth=self.include_ground_truth,
+                    attribution_target="step",
+                )
+                step_raw = self._call_model(
+                    prompt=step_prompt,
+                    system_prompt=step_system_prompt,
+                    temperature=analyst_temperature,
+                )
+                step_parsed = extract_json_block(step_raw)
+                step_analysis = normalize_objective_analysis(step_parsed, role, analyst_index)
+                step_analysis["temperature"] = analyst_temperature
+                step_analysis["attribution_target"] = "step"
+                objective_analyses_step.append(step_analysis)
+                objective_analyses.append(
+                    {
+                        "analyst_id": analyst_index,
+                        "analyst_role": role,
+                        "temperature": analyst_temperature,
+                        "agent_phase": agent_analysis,
+                        "step_phase": step_analysis,
+                    }
+                )
+            else:
+                objective_analyses.append(agent_analysis)
+
+        if self.decoupled_attribution:
+            consensus = aggregate_decoupled_consensus(
+                objective_analyses_agent,
+                objective_analyses_step,
+                min_confidence_threshold=self.min_confidence_threshold,
+                conversation_history=history,
+            )
+        else:
+            consensus = aggregate_consensus(
+                objective_analyses,
+                min_confidence_threshold=self.min_confidence_threshold,
+                conversation_history=history,
+            )
 
         pred_agent = self._pick_single_agent(consensus)
         pred_step = normalize_step((consensus.get("consensus_conclusion") or {}).get("mistake_step"))
@@ -116,7 +238,17 @@ class ECHOMethod(BaseMethod):
             "acc_step": acc_step,
             "echo_contexts": contexts,
             "echo_summary": summary,
+            "analyst_plan": {
+                "roles": analyst_roles,
+                "temperatures": analyst_temperatures,
+                "random_sample_analysts": self.random_sample_analysts,
+                "temperature_strategy": self.temperature_strategy,
+                "temperature_range": [self.temperature_min, self.temperature_max],
+                "decoupled_attribution": self.decoupled_attribution,
+            },
             "objective_analyses": objective_analyses,
+            "objective_analyses_agent": objective_analyses_agent,
+            "objective_analyses_step": objective_analyses_step,
             "consensus_result": consensus,
             "final_pred": {
                 "mistake_agent": pred_agent,
@@ -124,4 +256,3 @@ class ECHOMethod(BaseMethod):
                 "reason": (consensus.get("consensus_conclusion") or {}).get("reasoning", ""),
             },
         }
-
